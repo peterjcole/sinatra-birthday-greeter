@@ -1,0 +1,51 @@
+require 'capybara/dsl'
+require 'selenium-webdriver'
+include Capybara::DSL
+Capybara.default_driver = :selenium
+
+
+describe 'app' do
+  
+  context 'homepage' do
+    before (:context) do
+      visit('http://localhost:9393')
+    end
+    it 'contains a title' do
+      expect(page).to have_css('.title')
+    end
+    it 'contains a name input box' do
+      expect(page).to have_css('input[name=name][type=text]')
+    end
+    it 'contains a birthday day input box' do
+      expect(page).to have_css('input[name=day][type=text]')
+    end
+    it 'contains a birthday month dropdown' do
+      expect(page).to have_css('select[name=month]')
+    end
+    it 'contains a go button' do
+      expect(page).to have_css('input[name=go][type=submit]')
+    end
+  end
+
+  context '/greet' do
+    context "when it is not the person's birthday" do
+      before(:context) do
+        visit('http://localhost:9393')
+        page.fill_in('name', with: 'Peter')
+        page.fill_in('day', with: '25')
+        page.select('April', from: 'month')
+        page.click_button('Go')
+      end
+
+      it 'contains a title' do
+        expect(page).to have_css('h1.greeting')
+      end
+
+      it "says that it is not the person's birthday" do
+        expect(page).to have_css('h1.greeting', text: 'It is not your birthday')
+      end
+    end
+
+    context "when it is the person's birthday"
+  end
+end
