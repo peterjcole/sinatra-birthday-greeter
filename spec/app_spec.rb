@@ -42,10 +42,28 @@ describe 'app' do
       end
 
       it "says that it is not the person's birthday" do
-        expect(page).to have_css('h1.greeting', text: 'It is not your birthday')
+        expect(page).to have_css('h1.greeting', text: 'It is not your birthday Peter :(')
       end
     end
 
-    context "when it is the person's birthday"
+    context "when it is the person's birthday" do
+      before(:context) do
+        visit('http://localhost:9393')
+        day = Time.now.strftime('%d')
+        month = Time.now.strftime('%B')
+        page.fill_in('name', with: 'Peter')
+        page.fill_in('day', with: day)
+        page.select(month, from: 'month')
+        page.click_button('Go')
+      end
+
+      it 'contains a title' do
+        expect(page).to have_css('h1.greeting')
+      end
+
+      it "says that it is the person's birthday" do
+        expect(page).to have_css('h1.greeting', text: "It's your birthday Peter!!!!!!!!!!!!!!!!!!!!!!!!!")
+      end
+    end
   end
 end
