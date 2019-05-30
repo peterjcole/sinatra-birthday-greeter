@@ -6,6 +6,16 @@ Capybara.default_driver = :selenium
 
 describe 'app' do
   
+  let(:days_until_birthday) do
+    today = Date.today
+    birthday = Date.new(today.year, 04, 13)
+    if birthday >= today
+      return (birthday - today).to_i
+    else
+      return (birthday.next_year - today).to_i
+    end
+  end
+
   context 'homepage' do
     before (:context) do
       visit('http://localhost:9393')
@@ -28,28 +38,50 @@ describe 'app' do
   end
 
   context '/greet' do
+
+    context 'when name input was empty' do
+      before(:context) do
+        visit('http://localhost:9393')
+        page.fill_in('day', with: '13')
+        page.select('April', from: 'month')
+        page.click_button('Go')
+      end
+
+      it "greets without a name" do
+        expect(page).to have_css('h1', text: "It is not your birthday :(. Don't be too sad though, it's in #{days_until_birthday} days")
+      end
+    end
+
+    context 'when day input was empty' do
+      before(:context) do
+        visit('http://localhost:9393')
+        page.fill_in('name', with: 'Peter')
+        page.select('April', from: 'month')
+        page.click_button('Go')
+      end
+
+      it "complains at the user" do
+        expect(page).to have_css('h1', text: "I have no idea whether it's your birthday because you didn't tell me the day!")
+      end
+
+    end
+
     context "when it is not the person's birthday" do
       before(:context) do
         visit('http://localhost:9393')
         page.fill_in('name', with: 'Peter')
-        page.fill_in('day', with: '25')
+        page.fill_in('day', with: '13')
         page.select('April', from: 'month')
-        page.click_button('Gogi')
+        page.click_button('Go')
       end
 
       it 'contains a title' do
-        expect(page).to have_css('h1.greeting')
+        expect(page).to have_css('h1')
       end
 
       it "says that it is not the person's birthday" do
-        today = Date.today
-        birthday = Date.new(today.year, 04, 25)
-        if birthday > today
-          days_until_birthday = birthday - today
-        else
-          days_until_birthday = birthday.next_year - today
-        end
-        expect(page).to have_css('h1.greeting', text: "It is not your birthday Peter :(. Don't be too sad though, it's in #{days_until_birthday.to_i} days")
+
+        expect(page).to have_css('h1', text: "It is not your birthday Peter :(. Don't be too sad though, it's in #{days_until_birthday} days")
       end
     end
 
@@ -65,11 +97,11 @@ describe 'app' do
       end
 
       it 'contains a title' do
-        expect(page).to have_css('h1.greeting')
+        expect(page).to have_css('h1')
       end
 
       it "says that it is the person's birthday" do
-        expect(page).to have_css('h1.greeting', text: "It's your birthday Peter!!!!!!!!!!!!!!!!!!!!!!!!!")
+        expect(page).to have_css('h1', text: "It's your birthday Peter!!!!!!!!!!!!!!!!!!!!!!!!!")
       end
     end
   end
