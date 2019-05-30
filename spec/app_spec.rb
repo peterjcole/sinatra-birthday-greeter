@@ -34,7 +34,7 @@ describe 'app' do
         page.fill_in('name', with: 'Peter')
         page.fill_in('day', with: '25')
         page.select('April', from: 'month')
-        page.click_button('Go')
+        page.click_button('Gogi')
       end
 
       it 'contains a title' do
@@ -42,7 +42,14 @@ describe 'app' do
       end
 
       it "says that it is not the person's birthday" do
-        expect(page).to have_css('h1.greeting', text: 'It is not your birthday Peter :(')
+        today = Date.today
+        birthday = Date.new(today.year, 04, 25)
+        if birthday > today
+          days_until_birthday = birthday - today
+        else
+          days_until_birthday = birthday.next_year - today
+        end
+        expect(page).to have_css('h1.greeting', text: "It is not your birthday Peter :(. Don't be too sad though, it's in #{days_until_birthday.to_i} days")
       end
     end
 
